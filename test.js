@@ -1,64 +1,190 @@
-var assert = require('assert');
-var hello = require('./hello.js');
-var openwhisk = require('openwhisk');
-var ow;
-
 /**
- * Create a function which delegates to openwhisk to run a function f
+ * test/test.js
+ * Basic tests for Auth system API
  */
-function makeAdapter(f) {
-    return function(params) {
-        return ow.actions.invoke({name: f,
-                                  blocking: true,
-                                  result:true,
-                                  params:params});
-    };
-}
+const chai = require('chai');
+const expect = chai.expect;
 
-/**
- * For each function in an object, create an openwhisk adapter.
- * return an object with each adapter function.
- */
-function adapt(obj) {
-    var adapter= {}
-    for (var p in obj) {
-        adapter[p] =  makeAdapter(p)
-    }
-    return adapter;
-}
+// Start app (REST API)
+const app = require('../api/app');
 
+describe('App', () => {
+  it('Should exists', () => {
+    expect(app).to.be.a('function');})
+})
 
-describe('hello', function() {
-    
-    before( function() {
-        if (process.env.TEST_OPENWHISK) {
-           options = { apihost: process.env.OPENWHISK_HOST,
-                       api_key: process.env.OW_AUTH_KEY };
-           ow = openwhisk(options);
-           hello = adapt(hello,ow);
-        }
-    });
+// Import chai-http to send requests to the app
+const http = require('chai-http');
+chai.use(http);
 
-    describe('hello', function() {
-        it('should throw an error when name is not present', function() {
-            var params = {}
-            return hello.hello(params).then(function(result) {
-                assert(false);
-            }).catch(function(err) {
-                assert(true);
-            });
-        });
-    });
+describe('Search Book', () => {
 
-    describe('hello', function() {
-        it('should return Hello, jello!', function() {
-            var params = { name: 'jello' };
-
-            return hello.hello(params).then(function(result) {
-                assert.notEqual(result.payload,undefined);
-                assert.equal(result.payload,"Hello, jello!");
-            })
-        });
-    });
-
-});
+  it('Valid Search by ISBN', (done) => {
+    // Send request to the app
+    chai.request(app).get('/api/book')
+	  .set('api_key', '324jhsdj21jhd')
+	  .query({isbn:'1234-1234'}) // api/book?isbn='1234-1234'
+      .then((res) => {
+        //console.log(res.body);
+        expect(res).to.have.status(200);
+        //expect(res.body).to.have.key('books');
+		expect(res.body.books.length).to.be.equal(1);
+        done();
+    }).catch(err => {
+      console.log(err.message);
+    })
+  });
+  
+  it('Valid Search by Title', (done) => {
+    // Send request to the app
+    chai.request(app).get('/api/book')
+	  .set('api_key', '324jhsdj21jhd')
+	  .query({title:'Sample book title'}) // api/book?title='Sample book title'
+      .then((res) => {
+        //console.log(res.body);
+        expect(res).to.have.status(200);
+        //expect(res.body).to.have.key('books');
+		expect(res.body.books.length).to.be.equal(1);
+        done();
+    }).catch(err => {
+      console.log(err.message);
+    })
+  });
+  
+  it('Valid Search by Author', (done) => {
+    // Send request to the app
+    chai.request(app).get('/api/book')
+	  .set('api_key', '324jhsdj21jhd')
+	  .query({author:'Dan Brown'}) // api/book?author='Sample book title'
+      .then((res) => {
+        //console.log(res.body);
+        expect(res).to.have.status(200);
+        //expect(res.body).to.have.key('books');
+		expect(res.body.books.length).to.be.equal(1);
+        done();
+    }).catch(err => {
+      console.log(err.message);
+    })
+  });
+  
+  it('Valid Search by Category', (done) => {
+    // Send request to the app
+    chai.request(app).get('/api/book')
+	  .set('api_key', '324jhsdj21jhd')
+	  .query({category:'Fiction'}) // api/book?category='fiction'
+      .then((res) => {
+        //console.log(res.body);
+        expect(res).to.have.status(200);
+        //expect(res.body).to.have.key('books');
+		expect(res.body.books.length).to.be.equal(1);
+        done();
+    }).catch(err => {
+      console.log(err.message);
+    })
+  });
+  
+  it('Valid Search by Publication Date', (done) => {
+    // Send request to the app
+    chai.request(app).get('/api/book')
+	  .set('api_key', '324jhsdj21jhd')
+	  .query({publication_date:'New Company'}) // api/book?publication_date='01/01/2019'
+      .then((res) => {
+        //console.log(res.body);
+        expect(res).to.have.status(200);
+        //expect(res.body).to.have.key('books');
+		expect(res.body.books.length).to.be.equal(1);
+        done();
+    }).catch(err => {
+      console.log(err.message);
+    })
+  });
+  
+  it('Valid Search by Publisher', (done) => {
+    // Send request to the app
+    chai.request(app).get('/api/book')
+	  .set('api_key', '324jhsdj21jhd')
+	  .query({publisher:'New Company'}) // api/book?publisher='New Company'
+      .then((res) => {
+        //console.log(res.body);
+        expect(res).to.have.status(200);
+        //expect(res.body).to.have.key('books');
+		expect(res.body.books.length).to.be.equal(1);
+        done();
+    }).catch(err => {
+      console.log(err.message);
+    })
+  });
+  
+  it('Valid Search by Genre', (done) => {
+    // Send request to the app
+    chai.request(app).get('/api/book')
+	  .set('api_key', '324jhsdj21jhd')
+	  .query({genre:'Comic'}) // api/book?genre='comic'
+      .then((res) => {
+        //console.log(res.body);
+        expect(res).to.have.status(200);
+        //expect(res.body).to.have.key('books');
+		expect(res.body.books.length).to.be.equal(1);
+        done();
+    }).catch(err => {
+      console.log(err.message);
+    })
+  });
+  
+  it('Valid Search by Subject', (done) => {
+    // Send request to the app
+    chai.request(app).get('/api/book')
+	  .set('api_key', '324jhsdj21jhd')
+	  .query({subject:'Sample'}) // api/book?subject='Sample'
+      .then((res) => {
+        //console.log(res.body);
+        expect(res).to.have.status(200);
+        //expect(res.body).to.have.key('books');
+		expect(res.body.books.length).to.be.equal(1);
+        done();
+    }).catch(err => {
+      console.log(err.message);
+    })
+  });
+  
+  it('Invalid Search - No Parameters - 400 Error', (done) => {
+    // Send request to the app
+    chai.request(app).get('/api/book')
+	  .set('api_key', '324jhsdj21jhd')
+      .then((res) => {
+        console.log(res.body);
+        expect(res).to.have.status(400);
+        done();
+    }).catch(err => {
+      console.log(err.message);
+    })
+  });
+  
+  it('Invalid Search - No API Key - 403 Error', (done) => {
+    // Send request to the app
+    chai.request(app).get('/api/book')
+	  .query({subject:'Sample'}) // api/book?subject='Sample'
+      .then((res) => {
+        console.log(res.body);
+        expect(res).to.have.status(403);
+        done();
+    }).catch(err => {
+      console.log(err.message);
+    })
+  });
+  
+  it('Invalid Search - Invalid API Key - 401 Error', (done) => {
+    // Send request to the app
+    chai.request(app).get('/api/book')
+	  .set('api_key', 'invalid')
+	  .query({subject:'Sample'}) // api/book?subject='Sample'
+      .then((res) => {
+        console.log(res.body);
+        expect(res).to.have.status(401);
+        done();
+    }).catch(err => {
+      console.log(err.message);
+    })
+  });
+  
+})
